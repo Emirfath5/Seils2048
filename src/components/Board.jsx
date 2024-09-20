@@ -15,7 +15,7 @@ import SpinnerModal from "./SpinnerModal";
 import Season from "./Season";
 
 // TODO: env
-const CONTRACT_ADDRESS = "0x2a065C09B91b1a4fc2F3f26bf3893338700BB36a"; 
+const CONTRACT_ADDRESS = "0x964Ff163e297F349A37e611aE0dBD947af56B8e0"; 
 
 
 const SeiChainId = "1329";
