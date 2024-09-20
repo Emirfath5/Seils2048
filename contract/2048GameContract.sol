@@ -7,45 +7,42 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Contract is Ownable {
-    /* 结构体声明 */
+    
     struct Players {
         address playerAddress;
         uint256 score;
     }
 
-    /* 错误声明 */
+    
     error NoRewardCanClaim();
 
-    /* 事件声明  */
+    
     event EndGame(address indexed player, uint256 token_amount);
     event UpdateTop10Players(address indexed player, uint256 score);
     event SetSeason(uint256 indexed season, uint256 rewardAmount);
     event ClaimReward(address indexed player, uint256 reward);
     event MintNFT(address indexed player, uint256 indexed scoreTier);
 
-    /* 公共变量 */
-    uint256 public season; // 当前赛季
-    uint256 public rewardAmount; // 当前赛季奖池，排行榜的玩家赛季结束时可获得1/10
-    uint256 public lastRewardAmount; // 上赛季奖池
-    GameTokenContract public tokenContract; // 代币合约地址，部署游戏合约的时候同时部署代币合约
+    
+    uint256 public season; // 
+    uint256 public rewardAmount; // 1/10
+    uint256 public lastRewardAmount; // 
+    GameTokenContract public tokenContract; // 
     AchivementNFT public nftContract;
-    IERC20 public croakToken =
-        IERC20(0xaCb54d07cA167934F57F829BeE2cC665e1A5ebEF);
-    /* 映射和数组 */
-    Players[10] private top10Players; // 当前赛季前10玩家排行榜，包括地址和对应的分数
-    Players[10] private lastTop10Players; // 上赛季排行榜
-    mapping(address => uint16[4][4]) private games; // 存储玩家地址的棋盘
-    mapping(address => uint256) public accumulatedScores; // 累计总得分(不含当前游戏得分)
-    mapping(address => uint256) public scores; // 当前游戏得分，如果没有进行中的游戏则为0
+    IERC20 public seilsToken =
+        IERC20(0xf6715399d9e3f4E2A3f50c717763eFB486e7AEEC);
+    
+    Players[10] private top10Players; // 
+    Players[10] private lastTop10Players; // 
+    mapping(address => uint16[4][4]) private games; // 
+    mapping(address => uint256) public accumulatedScores; // 
+    mapping(address => uint256) public scores; //
 
-    /* 构造函数 */
-    constructor() Ownable(msg.sender) {
+        constructor() Ownable(msg.sender) {
         tokenContract = new GameTokenContract();
         nftContract = new AchivementNFT();
     }
 
-    /* 公共函数 */
-    // 保存棋盘。可用于更新玩家的普通移动，也可用于更新玩家购买道具后的变化，payable，可以接收玩家购买道具时消耗的token。
     function updateBoard(
         uint16[4][4] calldata newBoard,
         uint256 score
@@ -54,7 +51,7 @@ contract Contract is Ownable {
         games[msg.sender] = newBoard;
     }
 
-    // 结束游戏并获得代币
+    // 
     function endGame(uint256 score) public {
         scores[msg.sender] = 0;
         accumulatedScores[msg.sender] += score;
@@ -70,7 +67,7 @@ contract Contract is Ownable {
         emit EndGame(msg.sender, availableAmount);
     }
 
-    // 设置新赛季并结算旧赛季,玩家需在新赛季结束前cliam上赛季奖励，否则奖励将失效。单位ether
+    // ether
     function setSeason(uint256 _rewardAmount) public onlyOwner {
         season++;
         lastRewardAmount = rewardAmount;
@@ -97,7 +94,7 @@ contract Contract is Ownable {
                 uint256 reward = lastRewardAmount / length;
 
                 require(
-                    croakToken.transfer(msg.sender, reward),
+                    seilsToken.transfer(msg.sender, reward),
                     "Transfer failed"
                 );
 
@@ -127,8 +124,7 @@ contract Contract is Ownable {
         emit MintNFT(msg.sender, scoreTier);
     }
 
-    /* 内部函数 */
-    // 更新玩家的分数并更新排行榜
+    
     function _updateTop10Players(address player, uint256 newScore) internal {
         bool playerExists = false;
         Players[10] memory _top10Players = top10Players;
@@ -171,12 +167,12 @@ contract Contract is Ownable {
         }
     }
 
-    /* 视图函数 */
+    
     function getCoefficent() public view returns (uint256) {
         return (tokenContract.totalSupply() / 1e24) + 1;
     }
 
-    // 获取玩家已存在的棋盘。游戏若未开始返回的则是个4X4的全0数组
+    // 
     function getGameBoard(
         address user
     ) public view returns (uint16[4][4] memory) {
