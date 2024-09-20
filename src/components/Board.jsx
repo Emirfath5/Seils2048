@@ -65,7 +65,7 @@ const BoardView = () => {
           const newProvider = new ethers.BrowserProvider(window.ethereum);
 
           // Get the current chain ID
-          const currentChainId = await newProvider.send("sei_chainId", []);
+          const currentChainId = await newProvider.send("eth_chainId", []);
 
          
 
