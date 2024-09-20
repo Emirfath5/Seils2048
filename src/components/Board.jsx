@@ -220,7 +220,7 @@ const BoardView = () => {
       ]);
 
       
-      const newChainId = await provider.send("sei_chainId", []);
+      const newChainId = await provider.send("eth_chainId", []);
       if (newChainId === SeiChainId) {
         console.log("Successfully switched to Sei Mainnet network.");
       } else {
