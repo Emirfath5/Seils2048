@@ -15,12 +15,10 @@ import SpinnerModal from "./SpinnerModal";
 import Season from "./Season";
 
 // TODO: env
-// const CONTRACT_ADDRESS = "0x6780148Fc1BbfdaFF7d956BB60c846aEE6530Fd3"; // linea sepolia
-const CONTRACT_ADDRESS = "0x2a065C09B91b1a4fc2F3f26bf3893338700BB36a"; // linea mainnet
+const CONTRACT_ADDRESS = "0x2a065C09B91b1a4fc2F3f26bf3893338700BB36a"; 
 
 
-// const LineaSepoliaChainId = "0xe705";
-const LineaMainnetChainId = "0xe708";
+const SeiChainId = "1329";
 
 
 const BoardView = () => {
@@ -63,19 +61,16 @@ const BoardView = () => {
     const initialize = async () => {
       if (window.ethereum) {
         try {
-          // 创建 BrowserProvider 实例
+         
           const newProvider = new ethers.BrowserProvider(window.ethereum);
 
-          // 获取当前链 ID
-          const currentChainId = await newProvider.send("eth_chainId", []);
+          // Get the current chain ID
+          const currentChainId = await newProvider.send("sei_chainId", []);
 
-          // 如果当前网络不匹配，则请求切换到 Linea Sepolia 网络
-          // if (currentChainId !== LineaSepoliaChainId) {
-          //   await switchToLineaSepolia(newProvider);
-          // }
+         
 
-          if (currentChainId !== LineaMainnetChainId) {
-            await switchToLineaMainnet(newProvider);
+          if (currentChainId !== SeiChainId) {
+            await switchToSeiMainnet(newProvider);
           }
 
           // 请求用户账户
@@ -105,22 +100,20 @@ const BoardView = () => {
           );
           setSignerContract(sgContract);
 
-          // 调用合约的读取函数
           const getScore = async () => {
             try {
-              const score = await newContract.accumulatedScores(account); // 假设合约中有一个名为 `score` 的函数
+              const score = await newContract.accumulatedScores(account);
               setScore(score.toString());
-              // console.log(score.toString());
+              
             } catch (error) {
               console.error("Error fetching score:", error);
             }
           };
 
-          // 调用函数
           getScore();
-          // 设置加载状态为 false
+           //false
 
-          // 调用合约的读取函数
+          
           const getLevel = async () => {
             try {
               const level = await newContract.getUserTierAndMintStatus(account);
@@ -130,9 +123,9 @@ const BoardView = () => {
               console.error("Error fetching level:", error);
             }
           };
-          // 调用函数
+          
           getLevel();
-          // 设置加载状态为 false
+          
 
           const getBadgeList = async () => {
             try {
@@ -193,7 +186,7 @@ const BoardView = () => {
     });
   };
 
-  const switchToLineaMainnet = async (provider) => {
+  const switchToSeiMainnet = async (provider) => {
     // const networkParams = {
     //   chainId: LineaSepoliaChainId,
     //   chainName: "Linea Sepolia",
@@ -208,35 +201,35 @@ const BoardView = () => {
 
     // linea mainnet
      const networkParams = {
-      chainId: LineaMainnetChainId,
-      chainName: "Linea Mainnet",
-      rpcUrls: ["https://linea-mainnet.infura.io/v3/"],
+      chainId: SeiChainId,
+      chainName: "Sei Network",
+      rpcUrls: ["https://evm-rpc.sei-apis.com"],
       nativeCurrency: {
-        name: "Ether",
-        symbol: "ETH",
+        name: "Sei",
+        symbol: "SEI",
         decimals: 18,
       },
-      blockExplorerUrls: ["https://lineascan.build"],
+      blockExplorerUrls: ["https://seitrace.com/?chain=pacific-1"],
     }; 
     
 
     try {
-      // 请求切换到 Linea Sepolia 网络
+      
       await provider.send("wallet_switchEthereumChain", [
-        { chainId: LineaMainnetChainId },
+        { chainId: SeiChainId },
       ]);
 
-      // 确保切换成功
-      const newChainId = await provider.send("eth_chainId", []);
-      if (newChainId === LineaMainnetChainId) {
-        console.log("Successfully switched to Linea Mainnet network.");
+      
+      const newChainId = await provider.send("sei_chainId", []);
+      if (newChainId === SeiChainId) {
+        console.log("Successfully switched to Sei Mainnet network.");
       } else {
         console.log("Failed to switch network.");
         toast.error("Failed to switch network.");
       }
     } catch (error) {
       if (error.code === 4902) {
-        // 网络不存在，需要添加网络
+        
         try {
           await provider.send("wallet_addEthereumChain", [networkParams]);
           console.log("Network added successfully.");
@@ -253,28 +246,6 @@ const BoardView = () => {
     }
   };
 
-  // const connectWallet = async () => {
-  //   if (provider) {
-  //     try {
-  //       const accounts = await provider.send("eth_requestAccounts", []);
-  //       const newSigner = provider.getSigner();
-  //       const newContract = new ethers.Contract(
-  //         CONTRACT_ADDRESS,
-  //         CONTRACT_ABI,
-  //         newSigner
-  //       );
-  //       setContract(newContract);
-  //       setAddress(accounts[0]);
-  //     } catch (error) {
-  //       console.error("Connection error:", error);
-  //     }
-  //   }
-  // };
-
-  // const disconnectWallet = () => {
-  //   setContract(null);
-  //   setAddress(null);
-  // };
 
   const updateLevel = async () => {
     if (gameContract && address) {
